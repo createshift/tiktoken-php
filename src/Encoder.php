@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yethee\Tiktoken;
 
+use Closure;
 use Stringable;
 use Yethee\Tiktoken\Exception\RegexError;
 use Yethee\Tiktoken\Util\EncodeUtil;
@@ -25,12 +26,18 @@ use const PHP_INT_MAX;
 /** @psalm-import-type NonEmptyByteVector from EncodeUtil */
 final class Encoder implements Stringable
 {
+    public string $name;
+    private Vocab $vocab;
+    private string $pattern;
     /**
      * @param non-empty-string $name
      * @param non-empty-string $pattern
      */
-    public function __construct(public readonly string $name, private Vocab $vocab, private string $pattern)
+    public function __construct(string $name, Vocab $vocab, string $pattern)
     {
+        $this->name = $name;
+        $this->vocab = $vocab;
+        $this->pattern = $pattern;
     }
 
     public function __toString(): string
@@ -80,7 +87,7 @@ final class Encoder implements Stringable
             return '';
         }
 
-        return implode(array_map($this->vocab->getToken(...), $tokens));
+        return implode(array_map(Closure::fromCallable([$this->vocab, 'getToken']), $tokens));
     }
 
     /**

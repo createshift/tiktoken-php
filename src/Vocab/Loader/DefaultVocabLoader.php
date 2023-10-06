@@ -24,8 +24,10 @@ use const DIRECTORY_SEPARATOR;
 
 final class DefaultVocabLoader implements VocabLoader
 {
-    public function __construct(private string|null $cacheDir = null)
+    private $cacheDir;
+    public function __construct($cacheDir = null)
     {
+        $this->cacheDir = $cacheDir;
     }
 
     public function load(string $uri): Vocab
@@ -43,7 +45,7 @@ final class DefaultVocabLoader implements VocabLoader
 
             assert($this->cacheDir !== null);
 
-            if (! is_dir($this->cacheDir) && ! @mkdir($this->cacheDir, 0750, true)) {
+            if (!is_dir($this->cacheDir) && !mkdir($concurrentDirectory = $this->cacheDir, 0750, true) && !is_dir($concurrentDirectory)) {
                 throw new RuntimeException(sprintf(
                     'Directory does not exist and cannot be created: %s',
                     $this->cacheDir,

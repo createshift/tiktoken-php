@@ -75,8 +75,8 @@ final class EncoderProvider implements ResetInterface
         'code-search-ada-code-001' => 'r50k_base',
     ];
 
-    private VocabLoader|null $vocabLoader = null;
-    private string|null $vocabCacheDir;
+    private $vocabLoader = null;
+    private $vocabCacheDir;
 
     /** @var array<non-empty-string, Encoder> */
     private array $encoders = [];
@@ -132,7 +132,7 @@ final class EncoderProvider implements ResetInterface
     }
 
     /** @param non-empty-string|null $cacheDir */
-    public function setVocabCache(string|null $cacheDir): void
+    public function setVocabCache($cacheDir): void
     {
         $this->vocabCacheDir = $cacheDir;
         $this->vocabLoader = null;

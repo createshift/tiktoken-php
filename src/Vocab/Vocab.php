@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yethee\Tiktoken\Vocab;
 
+use Closure;
 use Countable;
+use Exception;
 use InvalidArgumentException;
 use OutOfBoundsException;
 use RuntimeException;
@@ -41,7 +43,7 @@ final class Vocab implements Countable
     {
         $this->tokenToRankMap = $tokenRankMap;
         /** @psalm-suppress PropertyTypeCoercion */
-        $this->rankToTokenMap = array_map(strval(...), array_flip($tokenRankMap));
+        $this->rankToTokenMap = array_map(Closure::fromCallable('strval'), array_flip($tokenRankMap));
 
         if (count($this->tokenToRankMap) !== count($this->rankToTokenMap)) {
             throw new InvalidArgumentException('The map of tokens and ranks has duplicates of rank');
@@ -105,7 +107,7 @@ final class Vocab implements Countable
     }
 
     /** @psalm-param NonEmptyByteVector $bytes */
-    public function tryGetRank(array $bytes): int|null
+    public function tryGetRank(array $bytes)
     {
         return $this->tokenToRankMap[EncodeUtil::fromBytes($bytes)] ?? null;
     }
@@ -117,10 +119,14 @@ final class Vocab implements Countable
      */
     public function getRank(array $bytes): int
     {
-        return $this->tokenToRankMap[EncodeUtil::fromBytes($bytes)] ?? throw new OutOfBoundsException(sprintf(
-            'No rank for bytes vector: [%s]',
-            implode(', ', $bytes),
-        ));
+        try {
+            return $this->tokenToRankMap[EncodeUtil::fromBytes($bytes)];
+        } catch (Exception $e) {
+            throw new OutOfBoundsException(sprintf(
+                'No rank for bytes vector: [%s]',
+                implode(', ', $bytes),
+            ));
+        }
     }
 
     /**
@@ -130,7 +136,11 @@ final class Vocab implements Countable
      */
     public function getToken(int $rank): string
     {
-        return $this->rankToTokenMap[$rank] ?? throw new OutOfBoundsException(sprintf('No token for rank: %d', $rank));
+        try {
+            return $this->rankToTokenMap[$rank];
+        } catch (Exception $e) {
+            throw new OutOfBoundsException(sprintf('No token for rank: %d', $rank));
+        }
     }
 
     /** @psalm-api */

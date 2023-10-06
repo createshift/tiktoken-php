@@ -15,8 +15,10 @@ final class EncoderProviderTest extends TestCase
     /**
      * @param non-empty-string $modelName
      * @param non-empty-string $encoding
+     *
+     * @dataProvider getEncoderForModelProvider
      */
-    #[DataProvider('getEncoderForModelProvider')]
+    //#[DataProvider('getEncoderForModelProvider')]
     public function testGetEncoderForModel(string $modelName, string $encoding): void
     {
         $provider = new EncoderProvider();
